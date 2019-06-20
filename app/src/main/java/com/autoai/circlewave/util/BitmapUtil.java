@@ -1,4 +1,4 @@
-package com.autoai.circlewave;
+package com.autoai.circlewave.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,7 +8,6 @@ import android.renderscript.Element;
 import android.renderscript.Matrix4f;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
-import android.renderscript.ScriptIntrinsicColorMatrix;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
