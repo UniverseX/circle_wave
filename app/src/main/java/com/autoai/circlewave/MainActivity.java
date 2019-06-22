@@ -42,7 +42,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 //        ivBg = findViewById(R.id.bg);
 //        ivRotate = findViewById(R.id.rotate);
-        effect = EffectFactory.getEffect(this, EffectFactory.EffectType.LINE_WAVE);
+        effect = EffectFactory.getEffect(this,
+                EffectFactory.EffectType.WATER_WAVE);
 //        setRotateView();
 //        setBackground();
         surfaceView = findViewById(R.id.surface_view);

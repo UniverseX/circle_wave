@@ -5,10 +5,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
+import android.os.Build;
+
+import com.autoai.circlewave.util.BezierUtil;
 
 /**
  *
@@ -16,97 +20,114 @@ import android.graphics.PorterDuffXfermode;
 public class DynamicScale extends BaseEffect {
     private static final String TAG = "DynamicScale";
 
+    private Paint mWavePaint1;
+
+    private Path mWavePath = new Path();
+    private Path mWavePath2 = new Path();
+
     private static final float WAVE_DIAMETER_OFFSET = 35f;
-    private static final int WAVE_DIVISIONS = 100;
-    private final Paint mWavePaint;
-    private final Paint mFadePaint;
+    private static final float WAVE_STROKE_WIDTH = 2f;
+    private static final float WAVE_AMPLITUDE_RATIO = 0.3f;
+    private static final int WAVE_POINTS = 15;
     private float mWaveDiameter;
-    private float[] mFFTPoints;
-    private PointF[] mCirclePoints = new PointF[WAVE_DIVISIONS];
+
+    private PointF[] points = new PointF[WAVE_POINTS];
+    private PointF[] origPoints = new PointF[WAVE_POINTS];
 
     public DynamicScale(Context context, Bitmap bg) {
         super(context, bg);
+
         mWaveDiameter = mCircleDiameter + density * WAVE_DIAMETER_OFFSET;
-        float mWaveStroke = (float) (Math.PI * mWaveDiameter / WAVE_DIAMETER_OFFSET / 4f);
+        float mWaveStroke = density * WAVE_STROKE_WIDTH;
 
-        mWavePaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG /*| Paint.FILTER_BITMAP_FLAG*/);
-        mWavePaint.setStrokeWidth(mWaveStroke);
-        mWavePaint.setColor(mainBgColor);
-
-        mFadePaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG /*| Paint.FILTER_BITMAP_FLAG*/);
-        mFadePaint.setColor(Color.argb(238, 255, 255, 255)); // Adjust alpha to change how quickly the image fades
-        mFadePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.MULTIPLY));
+        mWavePaint1 = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG /*| Paint.FILTER_BITMAP_FLAG*/);
+        mWavePaint1.setStrokeWidth(mWaveStroke);
+//        mWavePaint1.setStyle(Paint.Style.STROKE);
+        mWavePaint1.setStrokeJoin(Paint.Join.ROUND);
+        CornerPathEffect cornerPathEffect = new CornerPathEffect(130);
+        mWavePaint1.setPathEffect(cornerPathEffect);
+        mWavePaint1.setColor(mainBgColor);
     }
 
     @Override
-    public void onDraw(Canvas canvas) throws Exception {
+    public void onDraw(Canvas canvas) throws Exception{
         //clear
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        if(bg == null){
+            return;
+        }
         //draw bg
         canvas.drawBitmap(bg, null, surfaceRect, bgPaint);
+
+        //draw wave
+        drawWave(canvas, mBytes, mWavePaint1);
 
         //draw circle
         canvas.drawBitmap(circle, mCircleMatrix, mCirclePaint);
         mCircleMatrix.postRotate(SPEED_ROTATE, surfaceRect.width() / 2f, surfaceRect.height() / 2f);
+    }
 
-        if(mBytes == null){
+    private void drawWave(Canvas canvas, byte[] bytes, Paint paint) {
+        if(bytes == null){
             return;
         }
         float centerX = surfaceRect.width() / 2f;
         float centerY = surfaceRect.height() / 2f;
-        //draw base wave circle
-//        canvas.drawCircle(centerX, centerY, mWaveDiameter /2, mBaseWavePaint);
-
-        //draw wave scale(音阶)
+        float radius = mWaveDiameter / 2;
         int index = 0;
-        for (float i = 0; i < 360f; i += 360f / WAVE_DIVISIONS) {
-            float nx = (float) (Math.cos(Math.toRadians(i)) * mWaveDiameter / 2f + centerX);
-            float ny = (float) (Math.sin(Math.toRadians(i)) * mWaveDiameter / 2f + centerY);
+        int byteIndex = 0;
 
-            if(mCirclePoints[index] == null) {
-                mCirclePoints[index] = new PointF(nx, ny);
-            }else {
-                mCirclePoints[index].x = nx;
-                mCirclePoints[index].y = ny;
+        for (float degree = 0; degree < 360f; degree += 360f/WAVE_POINTS) {
+            float nx = (float) (Math.cos(Math.toRadians(degree)) * mWaveDiameter / 2f + centerX);
+            float ny = (float) (Math.sin(Math.toRadians(degree)) * mWaveDiameter / 2f + centerY);
+
+            float w_ratioX = 0;
+            float w_ratioY = 0;
+            if(byteIndex < bytes.length){
+                byteIndex = (int) (degree / 360f * bytes.length);
+
+                w_ratioX = (float) (Math.abs(bytes[index]) * WAVE_AMPLITUDE_RATIO * Math.cos(Math.toRadians(degree)));
+                w_ratioY = (float) (Math.abs(bytes[index]) * WAVE_AMPLITUDE_RATIO * Math.sin(Math.toRadians(degree)));
             }
+
+            if(origPoints[index] == null){
+                PointF pointF = new PointF();
+                pointF.x = nx + w_ratioX;
+                pointF.y = ny + w_ratioY;
+                origPoints[index] = pointF;
+            }else {
+                origPoints[index].x = nx + w_ratioX;
+                origPoints[index].y = ny + w_ratioY;
+            }
+            if(points[index] == null) {
+                PointF pointF = new PointF();
+                pointF.x = nx + w_ratioX;
+                pointF.y = ny + w_ratioY;
+                points[index] = pointF;
+            }else {
+                points[index].x = nx + w_ratioX;
+                points[index].y = ny + w_ratioY;
+            }
+
             index ++;
         }
+        mWavePath.reset();
+        mWavePath2.reset();
 
-        int division = mBytes.length / WAVE_DIVISIONS;
-        for (int i = 0; i < WAVE_DIVISIONS; i++) {
+        mWavePath2.addCircle(centerX, centerY, radius - 10, Path.Direction.CW);
 
-            mFFTPoints[i * 4] = mCirclePoints[i].x;
-            mFFTPoints[i * 4 + 1] = mCirclePoints[i].y;
-
-            byte rfk = mBytes[division * i];//间隔倍数
-            byte ifk = mBytes[division * i + 1];
-
-            float magnitude = (rfk * rfk + ifk * ifk);
-            float dbValue = (float) (10 * Math.log10(magnitude));
-
-            if(dbValue <= 0){
-                dbValue = density * 2;
-            }
-
-            float degree = i * 360f / WAVE_DIVISIONS;
-            float dx = (float) (Math.cos(Math.toRadians(degree)) * (dbValue));
-            float dy = (float) (Math.sin(Math.toRadians(degree)) * (dbValue));
-
-            mFFTPoints[i * 4 + 2] = mCirclePoints[i].x + dx;
-            mFFTPoints[i * 4 + 3] = mCirclePoints[i].y + dy;
+        mWavePath.moveTo(points[0].x, points[0].y);
+        for (int i = 1; i < points.length; i++) {
+            PointF[] pb = BezierUtil.getCtrlPoint(points, i);
+            mWavePath.cubicTo(pb[0].x, pb[0].y, pb[1].x, pb[1].y, points[i].x, points[i].y);
         }
+        PointF[] pb = BezierUtil.getCtrlPoint(points, 0);
+        mWavePath.cubicTo(pb[0].x, pb[0].y, pb[1].x, pb[1].y, points[0].x, points[0].y);
 
-        canvas.drawLines(mFFTPoints, mWavePaint);
-        // 渐变产生的阴影的效果
-        canvas.drawPaint(mFadePaint);
-    }
-
-    @Override
-    public void setByte(byte[] bytes) {
-        super.setByte(bytes);
-        if (mFFTPoints == null || mFFTPoints.length < bytes.length * 4) {
-            mFFTPoints = new float[bytes.length * 4];
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            mWavePath.op(mWavePath2, Path.Op.DIFFERENCE);
         }
+        canvas.drawPath(mWavePath, paint);
     }
 
 }

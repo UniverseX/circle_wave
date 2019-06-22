@@ -33,6 +33,7 @@ public class EffectFactory {
     public static Effect getEffect(Context context, int type) {
         switch (type) {
             case EffectType.WATER_WAVE:
+                return new WaterWave(context, BitmapFactory.decodeResource(context.getResources(), R.mipmap.bg));
             case EffectType.LINE_WAVE:
                 return new LineWave(context, BitmapFactory.decodeResource(context.getResources(), R.mipmap.bg));
             case EffectType.PLANET:

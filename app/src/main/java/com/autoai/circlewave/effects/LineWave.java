@@ -14,6 +14,7 @@ import android.graphics.RadialGradient;
 import android.graphics.RectF;
 import android.graphics.Shader;
 
+import com.autoai.circlewave.util.BezierUtil;
 import com.autoai.circlewave.util.EffectUtil;
 
 /**
@@ -70,10 +71,6 @@ public class LineWave extends BaseEffect{
         //draw bg
         canvas.drawBitmap(bg, null, surfaceRect, bgPaint);
 
-        //draw circle
-        canvas.drawBitmap(circle, mCircleMatrix, mCirclePaint);
-        mCircleMatrix.postRotate(SPEED_ROTATE, surfaceRect.width() / 2f, surfaceRect.height() / 2f);
-
         //draw wave
         //TODO 留影效果
 //        if(count % 30 == 0) {
@@ -89,6 +86,10 @@ public class LineWave extends BaseEffect{
 //        }
 //        count++;
         drawWave(canvas, mBytes, mWavePaint1);
+
+        //draw circle
+        canvas.drawBitmap(circle, mCircleMatrix, mCirclePaint);
+        mCircleMatrix.postRotate(SPEED_ROTATE, surfaceRect.width() / 2f, surfaceRect.height() / 2f);
     }
 
     private void drawWave(Canvas canvas, byte[] bytes, Paint paint) {
@@ -127,10 +128,10 @@ public class LineWave extends BaseEffect{
         mWavePath.reset();
         mWavePath.moveTo(points[0].x, points[0].y);
         for (int i = 1; i < points.length; i++) {
-            PointF[] pb = EffectUtil.getCtrlPoint(points, i);
+            PointF[] pb = BezierUtil.getCtrlPoint(points, i);
             mWavePath.cubicTo(pb[0].x, pb[0].y, pb[1].x, pb[1].y, points[i].x, points[i].y);
         }
-        PointF[] pb = EffectUtil.getCtrlPoint(points, 0);
+        PointF[] pb = BezierUtil.getCtrlPoint(points, 0);
         mWavePath.cubicTo(pb[0].x, pb[0].y, pb[1].x, pb[1].y, points[0].x, points[0].y);
 
         canvas.drawPath(mWavePath, paint);
