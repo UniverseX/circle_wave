@@ -1,9 +1,10 @@
-package com.autoai.circlewave;
+package com.autoai.circlewave.widgets;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.PixelFormat;
+import android.graphics.RectF;
 import android.media.MediaPlayer;
 import android.media.audiofx.Visualizer;
 import android.os.Build;
@@ -13,8 +14,9 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.autoai.circlewave.bean.Effect;
-import com.autoai.circlewave.bean.WaveEffect;
+import com.autoai.circlewave.R;
+import com.autoai.circlewave.effects.Effect;
+import com.autoai.circlewave.effects.LineWaveEffect;
 
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class WaveSurfaceView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
@@ -44,16 +46,13 @@ public class WaveSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 //        setFocusable(true);
 //        setFocusableInTouchMode(true);
 //        this.setKeepScreenOn(true);
-        effect = new WaveEffect(context, BitmapFactory.decodeResource(context.getResources(), R.mipmap.bg));
+        effect = new LineWaveEffect(context, BitmapFactory.decodeResource(context.getResources(), R.mipmap.bg));
         media();
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         isRun = true;
-
-
-
 //        setZOrderOnTop(true);
         drawThread = new Thread(this);
         drawThread.start();
@@ -61,7 +60,7 @@ public class WaveSurfaceView extends SurfaceView implements SurfaceHolder.Callba
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        effect.onSurfaceChanged(width, height);
+        effect.setSurfaceRectF(new RectF(0, 0, width, height));
     }
 
     @Override

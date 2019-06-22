@@ -1,15 +1,13 @@
-package com.autoai.circlewave.bean;
+package com.autoai.circlewave.effects;
 
 import android.graphics.Canvas;
+import android.graphics.RectF;
 
 public interface Effect {
-    void blurBg();
-
-    void clipCircle();
 
     void draw(Canvas canvas) throws Exception;
 
     void setByte(byte[] bytes);
 
-    void onSurfaceChanged(int width, int height);
+    void setSurfaceRectF(RectF rectF);
 }

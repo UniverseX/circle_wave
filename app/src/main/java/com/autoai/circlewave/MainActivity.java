@@ -1,18 +1,12 @@
 package com.autoai.circlewave;
 
 import android.Manifest;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-
-import com.autoai.circlewave.util.BitmapUtil;
-import com.autoai.circlewave.util.WeakRunnable;
 
 public class MainActivity extends AppCompatActivity {
 
