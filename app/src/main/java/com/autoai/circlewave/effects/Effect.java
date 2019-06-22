@@ -13,4 +13,8 @@ public interface Effect {
     void setSurfaceRectF(RectF rectF);
 
     void setBitmap(Bitmap bitmap);
+
+    Bitmap blurBg(Bitmap bg);
+
+    Bitmap clipCircle(Bitmap bg);
 }
