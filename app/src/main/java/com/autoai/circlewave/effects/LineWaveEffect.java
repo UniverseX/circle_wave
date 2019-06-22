@@ -27,7 +27,6 @@ public class LineWaveEffect extends BaseEffect{
     private RectF surfaceRect;
     private float density;
 
-    private Bitmap bg;
     private Bitmap circle;
 
     private Matrix mMatrix;
@@ -37,8 +36,6 @@ public class LineWaveEffect extends BaseEffect{
     private Paint mWavePaint;
     private PaintFlagsDrawFilter mCanvasAntiFilter;//canvas.setDrawFilter( mCanvasAntiFilter );
     private Path mWavePath = new Path();
-
-    private static final float CIRCLE_DIAMETER = 255f;
 
     private static final float WAVE_DIAMETER_OFFSET = 35f;
     private static final float WAVE_STROKE_WIDTH = 2f;
@@ -52,12 +49,9 @@ public class LineWaveEffect extends BaseEffect{
     private byte[] mBytes;
     private PointF[] points = new PointF[20];
 
-    private static volatile boolean hasBlurBg;
-    private static volatile boolean hasClipCircle;
-
     public LineWaveEffect(Context context, Bitmap bg) {
+        super(context, bg);
         mContext = context;
-        this.bg = bg;
 
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         density = displayMetrics.density;
@@ -81,32 +75,26 @@ public class LineWaveEffect extends BaseEffect{
 
     @Override
     public void blurBg() {
-        if(!hasBlurBg){
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                bg = EffectUtil.rsBlur(mContext, BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.bg)
-                        , 24, 1);
-            }
-            hasBlurBg = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            bg = EffectUtil.rsBlur(mContext, BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.bg)
+                    , 24, 1);
         }
     }
 
     @Override
     public void clipCircle() {
-        if(!hasClipCircle){
-            //缩小
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bg, (int) (mCircleDiameter * bg.getWidth() / bg.getHeight()), (int) mCircleDiameter, false);
-            Log.d(TAG, "clipCircle: ratio = "+ (1f *  bg.getWidth() / bg.getHeight()));
-            RectF dst = new RectF(0, 0, mCircleDiameter, mCircleDiameter);
-            //裁剪
+        //缩小
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bg, (int) (mCircleDiameter * bg.getWidth() / bg.getHeight()), (int) mCircleDiameter, false);
+        Log.d(TAG, "clipCircle: ratio = "+ (1f *  bg.getWidth() / bg.getHeight()));
+        RectF dst = new RectF(0, 0, mCircleDiameter, mCircleDiameter);
+        //裁剪
 //            circle = scaledBitmap;
-            circle = EffectUtil.createCircleBitmap(scaledBitmap, mCircleDiameter, dst);
+        circle = EffectUtil.createCircleBitmap(scaledBitmap, mCircleDiameter, dst);
 
-            Rect src = new Rect(0, 0, circle.getWidth(), circle.getHeight());
-            float circleLeft = surfaceRect.width() / 2f - (src.width() / 2f);
-            float circleTop = surfaceRect.height() / 2f - (src.height() / 2f);
-            mMatrix.setTranslate(circleLeft, circleTop);
-            hasClipCircle = true;
-        }
+        Rect src = new Rect(0, 0, circle.getWidth(), circle.getHeight());
+        float circleLeft = surfaceRect.width() / 2f - (src.width() / 2f);
+        float circleTop = surfaceRect.height() / 2f - (src.height() / 2f);
+        mMatrix.setTranslate(circleLeft, circleTop);
     }
 
     @Override
