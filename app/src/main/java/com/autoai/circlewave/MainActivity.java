@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 //        ivBg = findViewById(R.id.bg);
 //        ivRotate = findViewById(R.id.rotate);
         effect = EffectFactory.getEffect(this,
-                EffectFactory.EffectType.WATER_WAVE);
+                EffectFactory.EffectType.DYNAMIC_SCALE);
 //        setRotateView();
 //        setBackground();
         surfaceView = findViewById(R.id.surface_view);

@@ -30,6 +30,7 @@ public class DynamicScale extends BaseEffect {
     private static final float WAVE_AMPLITUDE_RATIO = 0.3f;
     private static final int WAVE_POINTS = 15;
     private float mWaveDiameter;
+    private float mWaveStroke;
 
     private PointF[] points = new PointF[WAVE_POINTS];
     private PointF[] origPoints = new PointF[WAVE_POINTS];
@@ -38,7 +39,7 @@ public class DynamicScale extends BaseEffect {
         super(context, bg);
 
         mWaveDiameter = mCircleDiameter + density * WAVE_DIAMETER_OFFSET;
-        float mWaveStroke = density * WAVE_STROKE_WIDTH;
+        mWaveStroke = (float) (Math.PI * mWaveDiameter / WAVE_POINTS / 10f);
 
         mWavePaint1 = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG /*| Paint.FILTER_BITMAP_FLAG*/);
         mWavePaint1.setStrokeWidth(mWaveStroke);
@@ -74,12 +75,15 @@ public class DynamicScale extends BaseEffect {
         float centerX = surfaceRect.width() / 2f;
         float centerY = surfaceRect.height() / 2f;
         float radius = mWaveDiameter / 2;
+        float outside_radius = radius + 10;
         int index = 0;
         int byteIndex = 0;
 
+        mWavePath.reset();
+        mWavePath2.reset();
         for (float degree = 0; degree < 360f; degree += 360f/WAVE_POINTS) {
-            float nx = (float) (Math.cos(Math.toRadians(degree)) * mWaveDiameter / 2f + centerX);
-            float ny = (float) (Math.sin(Math.toRadians(degree)) * mWaveDiameter / 2f + centerY);
+            float nx = (float) (Math.cos(Math.toRadians(degree)) * outside_radius + centerX);
+            float ny = (float) (Math.sin(Math.toRadians(degree)) * outside_radius + centerY);
 
             float w_ratioX = 0;
             float w_ratioY = 0;
@@ -111,10 +115,7 @@ public class DynamicScale extends BaseEffect {
 
             index ++;
         }
-        mWavePath.reset();
-        mWavePath2.reset();
-
-        mWavePath2.addCircle(centerX, centerY, radius - 10, Path.Direction.CW);
+        mWavePath2.addCircle(centerX, centerY, radius, Path.Direction.CCW);
 
         mWavePath.moveTo(points[0].x, points[0].y);
         for (int i = 1; i < points.length; i++) {
