@@ -2,7 +2,6 @@ package com.autoai.circlewave.effects;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.CornerPathEffect;
@@ -12,25 +11,16 @@ import android.graphics.PaintFlagsDrawFilter;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.os.Build;
 import android.util.DisplayMetrics;
-import android.util.Log;
 
-import com.autoai.circlewave.R;
 import com.autoai.circlewave.util.EffectUtil;
 
-public class LineWaveEffect extends BaseEffect{
+/**
+ * 跳动旋律
+ */
+public class LineWave extends BaseEffect{
     private static final String TAG = "WaveEffect";
-    private Context mContext;
-    private RectF surfaceRect;
-    private float density;
-
-    private Bitmap circle;
-
-    private Matrix mMatrix;
-
     private Paint bgPaint = new Paint();
     private Paint mCirclePanit;
     private Paint mWavePaint;
@@ -44,23 +34,15 @@ public class LineWaveEffect extends BaseEffect{
     private static final float WAVE_AMPLITUDE_RATIO = 0.15f;
     private float mWaveDiameter;
     private float mWaveStoke;
-    private float mCircleDiameter;
 
-    private byte[] mBytes;
     private PointF[] points = new PointF[20];
 
-    public LineWaveEffect(Context context, Bitmap bg) {
+    public LineWave(Context context, Bitmap bg) {
         super(context, bg);
-        mContext = context;
 
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        density = displayMetrics.density;
-        mCircleDiameter = displayMetrics.widthPixels / 4f;
         mWaveDiameter = mCircleDiameter + density * WAVE_DIAMETER_OFFSET;
         mWaveStoke = density * WAVE_STROKE_WIDTH;
 
-
-        mMatrix = new Matrix();
         mCirclePanit = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG/* | Paint.FILTER_BITMAP_FLAG*/);
         mWavePaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG /*| Paint.FILTER_BITMAP_FLAG*/);
         mWavePaint.setStrokeWidth(mWaveStoke);
@@ -74,43 +56,16 @@ public class LineWaveEffect extends BaseEffect{
     }
 
     @Override
-    public void blurBg() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            bg = EffectUtil.rsBlur(mContext, BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.bg)
-                    , 24, 1);
-        }
-    }
-
-    @Override
-    public void clipCircle() {
-        //缩小
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bg, (int) (mCircleDiameter * bg.getWidth() / bg.getHeight()), (int) mCircleDiameter, false);
-        Log.d(TAG, "clipCircle: ratio = "+ (1f *  bg.getWidth() / bg.getHeight()));
-        RectF dst = new RectF(0, 0, mCircleDiameter, mCircleDiameter);
-        //裁剪
-//            circle = scaledBitmap;
-        circle = EffectUtil.createCircleBitmap(scaledBitmap, mCircleDiameter, dst);
-
-        Rect src = new Rect(0, 0, circle.getWidth(), circle.getHeight());
-        float circleLeft = surfaceRect.width() / 2f - (src.width() / 2f);
-        float circleTop = surfaceRect.height() / 2f - (src.height() / 2f);
-        mMatrix.setTranslate(circleLeft, circleTop);
-    }
-
-    @Override
     public void onDraw(Canvas canvas) throws Exception{
         //clear
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         //draw bg
         canvas.drawBitmap(bg, null, surfaceRect, bgPaint);
 
-        //draw bg
-        canvas.drawBitmap(circle, mMatrix, mCirclePanit);
-
-        //draw triangle
+        //draw circle
+        canvas.drawBitmap(circle, mCircleMatrix, mCirclePanit);
 
         //draw wave
-
         double centerX = surfaceRect.width() / 2f;
         double centerY = surfaceRect.height() / 2f;
         int index = 0;
@@ -152,20 +107,8 @@ public class LineWaveEffect extends BaseEffect{
 
         canvas.drawPath(mWavePath, mWavePaint);
 
-        mMatrix.postRotate(1f, surfaceRect.width() / 2f, surfaceRect.height() / 2f);
+        mCircleMatrix.postRotate(1f, surfaceRect.width() / 2f, surfaceRect.height() / 2f);
 
-        Thread.sleep(10); // 这个就相当于帧频了，数值越小画面就越流畅
     }
-
-    @Override
-    public void setByte(byte[] bytes) {
-        mBytes = bytes;
-    }
-
-    @Override
-    public void setSurfaceRectF(RectF rectF) {
-        surfaceRect = rectF;
-    }
-
 
 }
