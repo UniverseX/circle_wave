@@ -36,8 +36,8 @@ public class BezierTest {
     public static PointF getCirclePoint(float centerX, float centerY, float radius, PointF p_other){
         double distance = Math.sqrt(Math.pow(p_other.x - centerX, 2) + Math.pow(p_other.y - centerY, 2));
         PointF cp = new PointF();
-        cp.x = (float) (radius * (p_other.x - centerX) / distance);
-        cp.y = (float) (radius * (p_other.y - centerY) / distance);
+        cp.x = (float) (radius * (p_other.x - centerX) / distance + centerX);
+        cp.y = (float) (radius * (p_other.y - centerY) / distance + centerY);
         return cp;
     }
 }
