@@ -25,4 +25,19 @@ public class BezierTest {
         pt.y = (float) (p0.y*Math.pow(1-t, 3) + 3*p1.y*Math.pow(1-t,2)*t + 3*p2.y*(1-t)*Math.pow(t,2)+p3.y*Math.pow(t,3));
         return pt;
     }
+
+    /**
+     * @param centerX 圆心坐标X
+     * @param centerY 圆心坐标y
+     * @param radius 半径
+     * @param p_other 圆外的一点
+     * @return 圆外的一点于圆心的连线，与圆的交点
+     */
+    public static PointF getCirclePoint(float centerX, float centerY, float radius, PointF p_other){
+        double distance = Math.sqrt(Math.pow(p_other.x - centerX, 2) + Math.pow(p_other.y - centerY, 2));
+        PointF cp = new PointF();
+        cp.x = (float) (radius * (p_other.x - centerX) / distance);
+        cp.y = (float) (radius * (p_other.y - centerY) / distance);
+        return cp;
+    }
 }
