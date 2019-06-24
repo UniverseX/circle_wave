@@ -60,14 +60,21 @@ public class EffectSurfaceView extends SurfaceView implements SurfaceHolder.Call
         isRun = false;
     }
 
+    public boolean isNeedInvalidate = false;
     public void setEffect(Effect effect) {
+        effect.copyFrom(this.effect);
         this.effect = effect;
+        isNeedInvalidate = true;
     }
 
     @Override
     public void run() {
         while (isRun) {
             try {
+                if(isNeedInvalidate){
+                    effect.invalidate();
+                    isNeedInvalidate = false;
+                }
                 mCanvas = mHolder.lockCanvas();
                 if(mCanvas == null){
                     break;

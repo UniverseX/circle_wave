@@ -39,11 +39,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         setContentView(R.layout.activity_main);
-//        ivBg = findViewById(R.id.bg);
-//        ivRotate = findViewById(R.id.rotate);
-        effect = chooseEffect(EffectFactory.EffectType.WATER_WAVE);
-//        setRotateView();
-//        setBackground();
+        effect = EffectFactory.getEffect(this, EffectFactory.EffectType.WATER_WAVE,
+                BitmapFactory.decodeResource(getResources(), R.mipmap.a));
         surfaceView = findViewById(R.id.surface_view);
         surfaceView.setEffect(effect);
         mediaManager = new MediaManager().create(this, R.raw.superheroes, surfaceView);
@@ -109,5 +106,35 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         }).start();
+    }
+
+    public void waterWave(View view) {
+        effect = EffectFactory.getEffect(this, EffectFactory.EffectType.WATER_WAVE,
+                BitmapFactory.decodeResource(getResources(), R.mipmap.a));
+        surfaceView.setEffect(effect);
+    }
+
+    public void lineWave(View view) {
+        effect = EffectFactory.getEffect(this, EffectFactory.EffectType.LINE_WAVE,
+                BitmapFactory.decodeResource(getResources(), R.mipmap.e));
+        surfaceView.setEffect(effect);
+    }
+
+    public void planet(View view) {
+        effect = EffectFactory.getEffect(this, EffectFactory.EffectType.PLANET,
+                BitmapFactory.decodeResource(getResources(), R.mipmap.c));
+        surfaceView.setEffect(effect);
+    }
+
+    public void DynamicScale(View view) {
+        effect = EffectFactory.getEffect(this, EffectFactory.EffectType.DYNAMIC_SCALE,
+                BitmapFactory.decodeResource(getResources(), R.mipmap.b));
+        surfaceView.setEffect(effect);
+    }
+
+    public void exp_particle(View view) {
+        effect = EffectFactory.getEffect(this, EffectFactory.EffectType.EXPLOSIVE_PARTICLE,
+                BitmapFactory.decodeResource(getResources(), R.mipmap.d));
+        surfaceView.setEffect(effect);
     }
 }

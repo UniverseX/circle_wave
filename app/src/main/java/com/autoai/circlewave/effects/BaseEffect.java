@@ -22,7 +22,6 @@ public abstract class BaseEffect implements Effect {
     protected Bitmap bg;
     protected Bitmap circle;
 
-    private boolean invalidate = false;
     private boolean needDraw = false;
 
     protected float mCircleDiameter;
@@ -51,14 +50,26 @@ public abstract class BaseEffect implements Effect {
         mCircleMatrix = new Matrix();
     }
 
-    public void blurBg(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            bg = blurBg(bg);
+    @Override
+    public void copyFrom(Effect e){
+        if(e instanceof BaseEffect) {
+            BaseEffect effect = (BaseEffect) e;
+            if (this.mBytes == null) {
+                this.mBytes = new byte[effect.mBytes.length];
+            }
+            System.arraycopy(this.mBytes, 0, effect.mBytes, 0, effect.mBytes.length);
+            if (surfaceRect == null) {
+                surfaceRect = new RectF(effect.surfaceRect);
+            }
+            this.surfaceRect.set(effect.surfaceRect);
         }
     }
 
+    public void blurBg(){
+        bg = blurBg(bg);
+    }
+
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public Bitmap blurBg(Bitmap bg){
         return BitmapUtil.bgProcess(mContext, bg, surfaceRect, true);
     }
@@ -82,11 +93,6 @@ public abstract class BaseEffect implements Effect {
 
     @Override
     final public void draw(Canvas canvas) throws Exception {
-        if(invalidate){
-            clipCircle();
-            blurBg();
-            needDraw = true;
-        }
         if(needDraw) {
             onDraw(canvas);
         }
@@ -103,7 +109,6 @@ public abstract class BaseEffect implements Effect {
         surfaceRect = rectF;
         clipCircle();
         blurBg();
-        invalidate = false;
         needDraw = true;
     }
 
@@ -113,8 +118,11 @@ public abstract class BaseEffect implements Effect {
         invalidate();
     }
 
-    private void invalidate(){
-        invalidate = true;
+    @Override
+    public void invalidate(){
         needDraw = false;
+        clipCircle();
+        blurBg();
+        needDraw = true;
     }
 }

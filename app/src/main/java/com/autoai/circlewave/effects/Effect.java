@@ -17,4 +17,8 @@ public interface Effect {
     Bitmap blurBg(Bitmap bg);
 
     Bitmap clipCircle(Bitmap bg);
+
+    void invalidate();
+
+    void copyFrom(Effect effect);
 }
