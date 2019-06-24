@@ -65,8 +65,8 @@ public class WaterWave extends BaseEffect {
         if(bytes == null){
             return;
         }
-        float centerX = surfaceRect.width() / 2f;
-        float centerY = surfaceRect.height() / 2f;
+        float centerX = (surfaceRect.right + surfaceRect.left) / 2;
+        float centerY = (surfaceRect.bottom + surfaceRect.top) / 2;
         float radius = mWaveDiameter / 2;
         int index = 0;
         int byteIndex = 0;

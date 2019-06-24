@@ -37,13 +37,14 @@ public class ExplosiveParticle extends BaseEffect {
         super(context, bg);
 
         mWaveDiameter = mCircleDiameter + density * WAVE_DIAMETER_OFFSET;
-        mWaveStroke = (float) (Math.PI * mWaveDiameter / WAVE_POINTS / 15f);
+        mWaveStroke = (float) (Math.PI * mWaveDiameter / WAVE_POINTS / 12f);
 
         mWavePaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG /*| Paint.FILTER_BITMAP_FLAG*/);
         mWavePaint.setStrokeWidth(mWaveStroke);
         mWavePaint.setStyle(Paint.Style.FILL);
         mWavePaint.setColor(mainBgColor);
         mWavePaint.setStrokeJoin(Paint.Join.ROUND);
+        mWavePaint.setStrokeCap(Paint.Cap.ROUND);
         CornerPathEffect cornerPathEffect = new CornerPathEffect(130);
         mWavePaint.setPathEffect(cornerPathEffect);
 

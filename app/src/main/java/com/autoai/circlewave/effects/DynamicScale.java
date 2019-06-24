@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
@@ -68,8 +67,8 @@ public class DynamicScale extends BaseEffect {
         if(bytes == null){
             return;
         }
-        float centerX = surfaceRect.width() / 2f;
-        float centerY = surfaceRect.height() / 2f;
+        float centerX = (surfaceRect.right + surfaceRect.left) / 2;
+        float centerY = (surfaceRect.bottom + surfaceRect.top) / 2;
         float radius = mWaveDiameter / 2;
         float outside_radius = radius + 5 * density;
         int index = 0;

@@ -95,8 +95,8 @@ public class LineWave extends BaseEffect{
         if(bytes == null){
             return;
         }
-        double centerX = surfaceRect.width() / 2f;
-        double centerY = surfaceRect.height() / 2f;
+        float centerX = (surfaceRect.right + surfaceRect.left) / 2;
+        float centerY = (surfaceRect.bottom + surfaceRect.top) / 2;
         int index = 0;
         int byteIndex = 0;
 
