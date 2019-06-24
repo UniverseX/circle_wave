@@ -41,14 +41,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 //        ivBg = findViewById(R.id.bg);
 //        ivRotate = findViewById(R.id.rotate);
-        effect = EffectFactory.getEffect(this,
-                EffectFactory.EffectType.EXPLOSIVE_PARTICLE,
-                BitmapFactory.decodeResource(getResources(), R.mipmap.bg));
+        effect = chooseEffect(EffectFactory.EffectType.WATER_WAVE);
 //        setRotateView();
 //        setBackground();
         surfaceView = findViewById(R.id.surface_view);
         surfaceView.setEffect(effect);
         mediaManager = new MediaManager().create(this, R.raw.superheroes, surfaceView);
+    }
+
+    public Effect chooseEffect(int type){
+        return EffectFactory.getEffect(this, type,
+                BitmapFactory.decodeResource(getResources(), R.mipmap.a));
     }
 
     @Override

@@ -22,8 +22,8 @@ public abstract class BaseEffect implements Effect {
     protected Bitmap bg;
     protected Bitmap circle;
 
-    private boolean hasProcessBg;
-    private boolean needDraw;
+    private boolean invalidate = false;
+    private boolean needDraw = false;
 
     protected float mCircleDiameter;
     protected Matrix mCircleMatrix;
@@ -40,7 +40,7 @@ public abstract class BaseEffect implements Effect {
         this.bg = bg;
         Palette palette = Palette.generate(bg);
 
-        Palette.Swatch swatch = palette.getLightMutedSwatch();
+        Palette.Swatch swatch = palette.getLightVibrantSwatch();
         if(swatch != null){
             mainBgColor = swatch.getRgb();
         }
@@ -60,7 +60,7 @@ public abstract class BaseEffect implements Effect {
     @Override
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public Bitmap blurBg(Bitmap bg){
-        return BitmapUtil.rsBlur(mContext, bg, 24, 1);
+        return BitmapUtil.bgProcess(mContext, bg, surfaceRect, true);
     }
 
     public void clipCircle(){
@@ -74,21 +74,17 @@ public abstract class BaseEffect implements Effect {
 
     @Override
     public Bitmap clipCircle(Bitmap bg){
-        //缩小
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bg, (int) (mCircleDiameter * bg.getWidth() / bg.getHeight()), (int) mCircleDiameter, false);
-        RectF dst = new RectF(0, 0, mCircleDiameter, mCircleDiameter);
         //裁剪
-        return BitmapUtil.createCircleBitmap(scaledBitmap, mCircleDiameter, dst);
+        return BitmapUtil.circleProcess(bg, mCircleDiameter);
     }
 
     public abstract void onDraw(Canvas canvas) throws Exception;
 
     @Override
     final public void draw(Canvas canvas) throws Exception {
-        if(!hasProcessBg) {
+        if(invalidate){
             clipCircle();
             blurBg();
-            hasProcessBg = true;
             needDraw = true;
         }
         if(needDraw) {
@@ -105,6 +101,10 @@ public abstract class BaseEffect implements Effect {
     @Override
     public void setSurfaceRectF(RectF rectF) {
         surfaceRect = rectF;
+        clipCircle();
+        blurBg();
+        invalidate = false;
+        needDraw = true;
     }
 
     @Override
@@ -114,7 +114,7 @@ public abstract class BaseEffect implements Effect {
     }
 
     private void invalidate(){
-        hasProcessBg = false;
+        invalidate = true;
         needDraw = false;
     }
 }
