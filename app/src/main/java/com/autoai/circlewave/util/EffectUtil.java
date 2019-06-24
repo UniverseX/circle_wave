@@ -58,42 +58,6 @@ public class EffectUtil {
         return inputBmp;
     }
 
-    private static final Matrix4f BRIGHTNESS_ADJUSTMENT_FACTOR_MATRIX = new Matrix4f(new float[]{
-            0.0f, 0f, 0.0f, 0.0f,
-            0.0f, 0f, 0.0f, 0.0f,
-            0.0f, 0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 0.0f,
-    });
-
-
-    /**清除背景颜色
-     * @param mBitmap
-     * @param mColor 背景颜色值 eg：Color.WHITE
-     *
-     * @return
-     */
-    public static Bitmap getAlphaBitmap(Bitmap mBitmap, int mColor)
-    {
-        Bitmap mAlphaBitmap = Bitmap.createBitmap(mBitmap.getWidth(), mBitmap.getHeight(), Bitmap.Config.ARGB_8888);
-
-        int mBitmapWidth = mAlphaBitmap.getWidth();
-        int mBitmapHeight = mAlphaBitmap.getHeight();
-
-        for (int i = 0; i < mBitmapHeight; i++)
-        {
-            for (int j = 0; j < mBitmapWidth; j++)
-            {
-                int color = mBitmap.getPixel(j, i);
-                if (color != mColor)
-                {
-                    mAlphaBitmap.setPixel(j, i, color);
-                }
-            }
-        }
-
-        return mAlphaBitmap;
-    }
-
     public static Bitmap createCircleBitmap(Bitmap resource, float circleDiameter, RectF dstRect)
     {
         //获取图片的宽度

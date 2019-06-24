@@ -31,7 +31,7 @@ public class BezierTest {
      * @param centerY 圆心坐标y
      * @param radius 半径
      * @param p_other 圆外的一点
-     * @return 圆外的一点于圆心的连线，与圆的交点
+     * @return p_other与圆心的连线，与圆的交点
      */
     public static PointF getCirclePoint(float centerX, float centerY, float radius, PointF p_other){
         double distance = Math.sqrt(Math.pow(p_other.x - centerX, 2) + Math.pow(p_other.y - centerY, 2));

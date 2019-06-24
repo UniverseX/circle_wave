@@ -40,7 +40,7 @@ public class EffectFactory {
             case EffectType.DYNAMIC_SCALE:
                 return new DynamicScale(context, BitmapFactory.decodeResource(context.getResources(), R.mipmap.bg));
             case EffectType.EXPLOSIVE_PARTICLE:
-                break;
+                return new ExplosiveParticle(context, BitmapFactory.decodeResource(context.getResources(), R.mipmap.bg));
 
         }
         return new LineWave(context, BitmapFactory.decodeResource(context.getResources(), R.mipmap.bg));

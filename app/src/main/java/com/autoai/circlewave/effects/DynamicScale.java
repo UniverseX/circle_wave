@@ -10,7 +10,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
-import android.os.Build;
 
 import com.autoai.circlewave.util.BezierUtil;
 
@@ -20,34 +19,31 @@ import com.autoai.circlewave.util.BezierUtil;
 public class DynamicScale extends BaseEffect {
     private static final String TAG = "DynamicScale";
 
-    private Paint mWavePaint1;
+    private Paint mWavePaint;
+    private Paint mWaveCirclePaint;
 
     private Path mWavePath = new Path();
-    private Path mWavePath2 = new Path();
 
-    private static final float WAVE_DIAMETER_OFFSET = 35f;
-    private static final float WAVE_STROKE_WIDTH = 2f;
-    private static final float WAVE_AMPLITUDE_RATIO = 0.3f;
+    private static final float WAVE_DIAMETER_OFFSET = 15f;
+    private static final float WAVE_AMPLITUDE_RATIO = 0.35f;
+    private static final float WAVE_POINTS_PER_SEGMENT = 8;
     private static final int WAVE_POINTS = 15;
     private float mWaveDiameter;
-    private float mWaveStroke;
 
     private PointF[] points = new PointF[WAVE_POINTS];
-    private PointF[] origPoints = new PointF[WAVE_POINTS];
 
     public DynamicScale(Context context, Bitmap bg) {
         super(context, bg);
 
         mWaveDiameter = mCircleDiameter + density * WAVE_DIAMETER_OFFSET;
-        mWaveStroke = (float) (Math.PI * mWaveDiameter / WAVE_POINTS / 10f);
+        float mWaveStroke = (float) (Math.PI * mWaveDiameter / WAVE_POINTS / 15f);
 
-        mWavePaint1 = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG /*| Paint.FILTER_BITMAP_FLAG*/);
-        mWavePaint1.setStrokeWidth(mWaveStroke);
-//        mWavePaint1.setStyle(Paint.Style.STROKE);
-        mWavePaint1.setStrokeJoin(Paint.Join.ROUND);
-        CornerPathEffect cornerPathEffect = new CornerPathEffect(130);
-        mWavePaint1.setPathEffect(cornerPathEffect);
-        mWavePaint1.setColor(mainBgColor);
+        mWavePaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG /*| Paint.FILTER_BITMAP_FLAG*/);
+        mWavePaint.setStrokeWidth(mWaveStroke);
+        mWavePaint.setStyle(Paint.Style.STROKE);
+        mWavePaint.setColor(mainBgColor);
+
+        mWaveCirclePaint = new Paint(mWavePaint);
     }
 
     @Override
@@ -61,7 +57,7 @@ public class DynamicScale extends BaseEffect {
         canvas.drawBitmap(bg, null, surfaceRect, bgPaint);
 
         //draw wave
-        drawWave(canvas, mBytes, mWavePaint1);
+        drawWave(canvas, mBytes, mWavePaint);
 
         //draw circle
         canvas.drawBitmap(circle, mCircleMatrix, mCirclePaint);
@@ -75,12 +71,13 @@ public class DynamicScale extends BaseEffect {
         float centerX = surfaceRect.width() / 2f;
         float centerY = surfaceRect.height() / 2f;
         float radius = mWaveDiameter / 2;
-        float outside_radius = radius + 10;
+        float outside_radius = radius + 5 * density;
         int index = 0;
         int byteIndex = 0;
 
+        canvas.drawCircle(centerX, centerY, radius, mWaveCirclePaint);
+
         mWavePath.reset();
-        mWavePath2.reset();
         for (float degree = 0; degree < 360f; degree += 360f/WAVE_POINTS) {
             float nx = (float) (Math.cos(Math.toRadians(degree)) * outside_radius + centerX);
             float ny = (float) (Math.sin(Math.toRadians(degree)) * outside_radius + centerY);
@@ -94,15 +91,6 @@ public class DynamicScale extends BaseEffect {
                 w_ratioY = (float) (Math.abs(bytes[index]) * WAVE_AMPLITUDE_RATIO * Math.sin(Math.toRadians(degree)));
             }
 
-            if(origPoints[index] == null){
-                PointF pointF = new PointF();
-                pointF.x = nx + w_ratioX;
-                pointF.y = ny + w_ratioY;
-                origPoints[index] = pointF;
-            }else {
-                origPoints[index].x = nx + w_ratioX;
-                origPoints[index].y = ny + w_ratioY;
-            }
             if(points[index] == null) {
                 PointF pointF = new PointF();
                 pointF.x = nx + w_ratioX;
@@ -115,18 +103,24 @@ public class DynamicScale extends BaseEffect {
 
             index ++;
         }
-        mWavePath2.addCircle(centerX, centerY, radius, Path.Direction.CCW);
 
-        mWavePath.moveTo(points[0].x, points[0].y);
+        PointF tmp = points[0];
         for (int i = 1; i < points.length; i++) {
             PointF[] pb = BezierUtil.getCtrlPoint(points, i);
-            mWavePath.cubicTo(pb[0].x, pb[0].y, pb[1].x, pb[1].y, points[i].x, points[i].y);
+            for (int j = 0; j < WAVE_POINTS_PER_SEGMENT; j++) {
+                PointF pointF = BezierUtil.calCurvePoint(tmp, pb[0], pb[1], points[i], j / WAVE_POINTS_PER_SEGMENT);
+                PointF circlePoint = BezierUtil.getCirclePoint(centerX, centerY, radius, pointF);
+                mWavePath.moveTo(circlePoint.x, circlePoint.y);
+                mWavePath.lineTo(pointF.x, pointF.y);
+            }
+            tmp = points[i];
         }
         PointF[] pb = BezierUtil.getCtrlPoint(points, 0);
-        mWavePath.cubicTo(pb[0].x, pb[0].y, pb[1].x, pb[1].y, points[0].x, points[0].y);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            mWavePath.op(mWavePath2, Path.Op.DIFFERENCE);
+        for (int j = 0; j < WAVE_POINTS_PER_SEGMENT; j++) {
+            PointF pointF = BezierUtil.calCurvePoint(tmp, pb[0], pb[1], points[0], j / WAVE_POINTS_PER_SEGMENT);
+            PointF circlePoint = BezierUtil.getCirclePoint(centerX, centerY, radius, pointF);
+            mWavePath.moveTo(circlePoint.x, circlePoint.y);
+            mWavePath.lineTo(pointF.x, pointF.y);
         }
         canvas.drawPath(mWavePath, paint);
     }
