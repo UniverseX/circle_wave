@@ -5,6 +5,9 @@ import android.graphics.PointF;
 public class BezierUtil {
     /**
      * 计算控制点 如果计算 p2 , p3之间的控制点，则需要计算p1, p2, p3, p4四个点(三阶)
+     * @param ps 圆上的点的数组
+     * @param i 下一个点(p3)的数组索引
+     * @return 返回 p2 , p3之间的控制点
      */
     public static PointF[] getCtrlPoint(PointF[] ps, int i){
 

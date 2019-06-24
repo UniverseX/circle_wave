@@ -14,7 +14,6 @@ import android.widget.ImageView;
 
 import com.autoai.circlewave.effects.Effect;
 import com.autoai.circlewave.effects.EffectFactory;
-import com.autoai.circlewave.util.EffectUtil;
 import com.autoai.circlewave.util.WeakRunnable;
 import com.autoai.circlewave.widgets.EffectSurfaceView;
 import com.autoai.circlewave.widgets.RotateImageView;
@@ -43,7 +42,8 @@ public class MainActivity extends AppCompatActivity {
 //        ivBg = findViewById(R.id.bg);
 //        ivRotate = findViewById(R.id.rotate);
         effect = EffectFactory.getEffect(this,
-                EffectFactory.EffectType.EXPLOSIVE_PARTICLE);
+                EffectFactory.EffectType.EXPLOSIVE_PARTICLE,
+                BitmapFactory.decodeResource(getResources(), R.mipmap.bg));
 //        setRotateView();
 //        setBackground();
         surfaceView = findViewById(R.id.surface_view);

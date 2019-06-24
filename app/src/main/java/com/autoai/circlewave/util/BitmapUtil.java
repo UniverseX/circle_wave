@@ -17,7 +17,7 @@ import android.renderscript.ScriptIntrinsicBlur;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
-public class EffectUtil {
+public class BitmapUtil {
     private static final String TAG = "BitmapUtil";
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)

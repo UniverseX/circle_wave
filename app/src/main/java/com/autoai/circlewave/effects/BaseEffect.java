@@ -13,7 +13,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.graphics.Palette;
 import android.util.DisplayMetrics;
 
-import com.autoai.circlewave.util.EffectUtil;
+import com.autoai.circlewave.util.BitmapUtil;
 
 public abstract class BaseEffect implements Effect {
     public static final float SPEED_ROTATE = 0.3F;//per 10 ms
@@ -60,7 +60,7 @@ public abstract class BaseEffect implements Effect {
     @Override
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public Bitmap blurBg(Bitmap bg){
-        return EffectUtil.rsBlur(mContext, bg, 24, 1);
+        return BitmapUtil.rsBlur(mContext, bg, 24, 1);
     }
 
     public void clipCircle(){
@@ -78,7 +78,7 @@ public abstract class BaseEffect implements Effect {
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(bg, (int) (mCircleDiameter * bg.getWidth() / bg.getHeight()), (int) mCircleDiameter, false);
         RectF dst = new RectF(0, 0, mCircleDiameter, mCircleDiameter);
         //裁剪
-        return EffectUtil.createCircleBitmap(scaledBitmap, mCircleDiameter, dst);
+        return BitmapUtil.createCircleBitmap(scaledBitmap, mCircleDiameter, dst);
     }
 
     public abstract void onDraw(Canvas canvas) throws Exception;

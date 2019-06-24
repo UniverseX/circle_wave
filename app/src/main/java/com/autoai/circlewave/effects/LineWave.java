@@ -15,7 +15,6 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 
 import com.autoai.circlewave.util.BezierUtil;
-import com.autoai.circlewave.util.EffectUtil;
 
 /**
  * 跳动旋律
