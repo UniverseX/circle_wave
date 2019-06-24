@@ -1,4 +1,4 @@
-package com.autoai.circlewave;
+package com.autoai.circlewave.widgets;
 
 import android.content.Context;
 import android.support.annotation.Nullable;

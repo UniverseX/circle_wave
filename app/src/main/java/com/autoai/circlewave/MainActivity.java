@@ -10,13 +10,22 @@ import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 
-import com.autoai.circlewave.util.BitmapUtil;
+import com.autoai.circlewave.effects.Effect;
+import com.autoai.circlewave.effects.EffectFactory;
+import com.autoai.circlewave.util.EffectUtil;
 import com.autoai.circlewave.util.WeakRunnable;
+import com.autoai.circlewave.widgets.EffectSurfaceView;
+import com.autoai.circlewave.widgets.RotateImageView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private View root;
+    private MediaManager mediaManager;
+    private EffectSurfaceView surfaceView;
+    private ImageView ivBg;
+    private RotateImageView ivRotate;
+    private Effect effect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,23 +34,21 @@ public class MainActivity extends AppCompatActivity {
          || PermissionChecker.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PermissionChecker.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
         }else {
-            setContentView(R.layout.activity_main);
-            root = findViewById(R.id.root);
+            init();
         }
+    }
 
-//        new Thread(new WeakRunnable<View>(root) {
-//            @Override
-//            public void run(View view) {
-//                Bitmap bg_src = BitmapFactory.decodeResource(view.getResources(), R.mipmap.bg);
-//                final Bitmap bg = BitmapUtil.rsBlur(root.getContext(), bg_src, 0, 1);
-//                view.post(new WeakRunnable<View>(view) {
-//                    @Override
-//                    public void run(View view1) {
-//                        view1.setBackground(new BitmapDrawable(bg));
-//                    }
-//                });
-//            }
-//        }).start();
+    private void init() {
+        setContentView(R.layout.activity_main);
+//        ivBg = findViewById(R.id.bg);
+//        ivRotate = findViewById(R.id.rotate);
+        effect = EffectFactory.getEffect(this,
+                EffectFactory.EffectType.DYNAMIC_SCALE);
+//        setRotateView();
+//        setBackground();
+        surfaceView = findViewById(R.id.surface_view);
+        surfaceView.setEffect(effect);
+        mediaManager = new MediaManager().create(this, R.raw.superheroes, surfaceView);
     }
 
     @Override
@@ -57,9 +64,47 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         if(result){
-            setContentView(R.layout.activity_main);
-            root = findViewById(R.id.root);
+            init();
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mediaManager.release();
+    }
+
+    public void setBackground(){
+        new Thread(new WeakRunnable<View>(ivBg) {
+            @Override
+            public void run(View view) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    final Bitmap bitmap = effect.blurBg(BitmapFactory.decodeResource(view.getResources(), R.mipmap.bg));
+                    view.post(new WeakRunnable<View>(view) {
+                        @Override
+                        public void run(View view1) {
+                            view1.setBackground(new BitmapDrawable(bitmap));
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+    public void setRotateView(){
+        new Thread(new WeakRunnable<ImageView>(ivRotate) {
+
+            @Override
+            public void run(ImageView view) {
+                final Bitmap circle = effect.clipCircle(BitmapFactory.decodeResource(view.getResources(), R.mipmap.bg));
+                view.post(new WeakRunnable<ImageView>(view) {
+                    @Override
+                    public void run(ImageView imageView) {
+                        imageView.setImageBitmap(circle);
+                    }
+                });
+            }
+        }).start();
     }
 }
