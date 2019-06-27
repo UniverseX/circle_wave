@@ -43,12 +43,12 @@ public class MainActivity extends AppCompatActivity {
                 BitmapFactory.decodeResource(getResources(), R.mipmap.a));
         surfaceView = findViewById(R.id.surface_view);
         surfaceView.setEffect(effect);
-        mediaManager = new MediaManager().create(this, R.raw.superheroes, surfaceView);
+        mediaManager = new MediaManager().create(this, R.raw.yicijiuhao, surfaceView);
     }
 
     public Effect chooseEffect(int type){
         return EffectFactory.getEffect(this, type,
-                BitmapFactory.decodeResource(getResources(), R.mipmap.a));
+                BitmapFactory.decodeResource(getResources(), R.mipmap.d));
     }
 
     @Override
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void lineWave(View view) {
         effect = EffectFactory.getEffect(this, EffectFactory.EffectType.LINE_WAVE,
-                BitmapFactory.decodeResource(getResources(), R.mipmap.e));
+                BitmapFactory.decodeResource(getResources(), R.mipmap.b));
         surfaceView.setEffect(effect);
     }
 
@@ -128,13 +128,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void DynamicScale(View view) {
         effect = EffectFactory.getEffect(this, EffectFactory.EffectType.DYNAMIC_SCALE,
-                BitmapFactory.decodeResource(getResources(), R.mipmap.b));
+                BitmapFactory.decodeResource(getResources(), R.mipmap.d));
         surfaceView.setEffect(effect);
     }
 
     public void exp_particle(View view) {
         effect = EffectFactory.getEffect(this, EffectFactory.EffectType.EXPLOSIVE_PARTICLE,
-                BitmapFactory.decodeResource(getResources(), R.mipmap.d));
+                BitmapFactory.decodeResource(getResources(), R.mipmap.e));
         surfaceView.setEffect(effect);
     }
 }
